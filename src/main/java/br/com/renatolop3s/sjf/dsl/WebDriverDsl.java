@@ -1,21 +1,32 @@
 package br.com.renatolop3s.sjf.dsl;
 
-import br.com.renatolop3s.sjf.driver.DriverManager;
 import lombok.SneakyThrows;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
+import static br.com.renatolop3s.sjf.driver.DriverManager.getDriver;
+import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOf;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 
+@SuppressWarnings("unchecked")
 public class WebDriverDsl<T extends WebDriverDsl<T>> {
 
     protected WebDriverWait wait;
 
     protected WebDriverDsl() {
-        this.wait = new WebDriverWait(DriverManager.getDriver(), Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(getDriver(), Duration.ofSeconds(20));
+    }
+
+    public T open(String url) {
+        getDriver().get(url);
+        return (T) this;
+    }
+
+    public T refresh() {
+        getDriver().navigate().refresh();
+        return (T) this;
     }
 
     @SneakyThrows
@@ -26,10 +37,6 @@ public class WebDriverDsl<T extends WebDriverDsl<T>> {
 
     protected WebElement waitForElementToBeVisible(WebElement element) {
         return wait.until(visibilityOf(element));
-    }
-
-    protected WebElement waitForElementToBeVisible(By locator) {
-        return wait.until(visibilityOfElementLocated(locator));
     }
 
     protected boolean waitForElementToDisappear(WebElement element) {

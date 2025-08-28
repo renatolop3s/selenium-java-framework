@@ -1,4 +1,4 @@
-package br.com.renatolop3s.sjf.listener;
+package br.com.renatolop3s.sjf.listeners;
 
 import com.epam.reportportal.service.ReportPortal;
 import org.testng.ITestContext;
@@ -20,7 +20,7 @@ public class ReportPortalTestListener implements ITestListener {
 
         // Add attributes dynamically
         Map<String, String> attributes = new HashMap<>();
-        attributes.put("Target", cfg().target());
+        attributes.put("Target", cfg().target().name());
         attributes.put("Browser", cfg().browser());
         attributes.put("Environment", cfg().env());
 

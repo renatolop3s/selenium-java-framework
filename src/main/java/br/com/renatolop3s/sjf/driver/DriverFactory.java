@@ -1,7 +1,8 @@
 package br.com.renatolop3s.sjf.driver;
 
-import br.com.renatolop3s.sjf.exception.BrowserNotSupportedException;
-import br.com.renatolop3s.sjf.exception.HeadlessNotSupportedException;
+import br.com.renatolop3s.sjf.enums.Target;
+import br.com.renatolop3s.sjf.exceptions.BrowserNotSupportedException;
+import br.com.renatolop3s.sjf.exceptions.HeadlessNotSupportedException;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,20 @@ import org.openqa.selenium.safari.SafariOptions;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import static br.com.renatolop3s.sjf.config.Configuration.cfg;
-import static br.com.renatolop3s.sjf.driver.DriverArguments.*;
-import static java.lang.String.format;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.DISABLE_DEV_SHM_USAGE;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.DISABLE_EXTENSIONS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.DISABLE_GPU;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.DISABLE_INFOBARS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.DISABLE_NOTIFICATIONS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.HEADLESS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.HEADLESS_CHROMIUM;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.IGNORE_CERTIFICATE_ERRORS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.NO_SANDBOX;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.REMOTE_ALLOW_ORIGINS;
+import static br.com.renatolop3s.sjf.driver.DriverArguments.START_MAXIMIZED;
 
 @Slf4j
 public enum DriverFactory {
@@ -32,20 +43,29 @@ public enum DriverFactory {
         @Override
         public ChromeOptions getOptions() {
             ChromeOptions options = new ChromeOptions();
-            options.addArguments(START_MAXIMIZED);
-            options.addArguments(DISABLE_INFOBARS);
-            options.addArguments(DISABLE_NOTIFICATIONS);
-            options.addArguments(REMOTE_ALLOW_ORIGINS);
+            options.addArguments(
+                    NO_SANDBOX,
+                    DISABLE_GPU,
+                    DISABLE_INFOBARS,
+                    DISABLE_EXTENSIONS,
+                    DISABLE_NOTIFICATIONS,
+                    DISABLE_DEV_SHM_USAGE,
+                    REMOTE_ALLOW_ORIGINS,
+                    IGNORE_CERTIFICATE_ERRORS
+            );
             if (cfg().headless()) {
-                options.addArguments(CHROME_HEADLESS);
+                options.addArguments(HEADLESS_CHROMIUM);
             }
-            if ("grid".equalsIgnoreCase(cfg().target())) {
-                options.setCapability("selenoid:options", new HashMap<String, Object>() {{
-                    put("sessionTimeout", cfg().gridSessionTimeout());
-                    put("enableVnc", cfg().gridEnableVnc());
-                    put("enableVideo", cfg().gridEnableVideo());
-                }});
+            if (cfg().target() == Target.LOCAL) {
+                options.addArguments(START_MAXIMIZED);
             }
+            Map<String, Object> prefs = new HashMap<>();
+            prefs.put("credentials_enable_service", false);
+            prefs.put("profile.password_manager_enabled", false);
+            prefs.put("profile.password_manager_leak_detection", false);
+            options.setExperimentalOption("prefs", prefs);
+            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+            options.setExperimentalOption("useAutomationExtension", false);
             return options;
         }
 
@@ -60,22 +80,22 @@ public enum DriverFactory {
             WebDriverManager.chromedriver().setup();
             return new RemoteWebDriver(getRemoteUrl(), getOptions());
         }
+
+        @Override
+        public WebDriver createTestcontainersDriver() {
+            return null;
+        }
     },
 
     FIREFOX {
         @Override
         public FirefoxOptions getOptions() {
             FirefoxOptions options = new FirefoxOptions();
-            options.addArguments(START_MAXIMIZED);
             if (cfg().headless()) {
                 options.addArguments(HEADLESS);
             }
-            if ("grid".equalsIgnoreCase(cfg().target())) {
-                options.setCapability("selenoid:options", new HashMap<String, Object>() {{
-                    put("sessionTimeout", cfg().gridSessionTimeout());
-                    put("enableVnc", cfg().gridEnableVnc());
-                    put("enableVideo", cfg().gridEnableVideo());
-                }});
+            if (cfg().target() == Target.LOCAL) {
+                options.addArguments(START_MAXIMIZED);
             }
             return options;
         }
@@ -91,22 +111,22 @@ public enum DriverFactory {
             WebDriverManager.firefoxdriver().setup();
             return new RemoteWebDriver(getRemoteUrl(), getOptions());
         }
+
+        @Override
+        public WebDriver createTestcontainersDriver() {
+            return null;
+        }
     },
 
     EDGE {
         @Override
         public EdgeOptions getOptions() {
             EdgeOptions options = new EdgeOptions();
-            options.addArguments(START_MAXIMIZED);
             if (cfg().headless()) {
-                options.addArguments(HEADLESS);
+                options.addArguments(HEADLESS_CHROMIUM);
             }
-            if ("grid".equalsIgnoreCase(cfg().target())) {
-                options.setCapability("selenoid:options", new HashMap<String, Object>() {{
-                    put("sessionTimeout", cfg().gridSessionTimeout());
-                    put("enableVnc", cfg().gridEnableVnc());
-                    put("enableVideo", cfg().gridEnableVideo());
-                }});
+            if (cfg().target() == Target.LOCAL) {
+                options.addArguments(START_MAXIMIZED);
             }
             return options;
         }
@@ -122,6 +142,11 @@ public enum DriverFactory {
             WebDriverManager.edgedriver().setup();
             return new RemoteWebDriver(getRemoteUrl(), getOptions());
         }
+
+        @Override
+        public WebDriver createTestcontainersDriver() {
+            return null;
+        }
     },
 
     OPERA {
@@ -132,14 +157,32 @@ public enum DriverFactory {
 
         @Override
         public WebDriver createLocalDriver() {
-            throw new BrowserNotSupportedException("Browser not supported: Opera. " +
-                    "consider using an alternative browser, such as Chrome, Firefox, Edge, or Safari.");
+            throw new BrowserNotSupportedException(
+                    """
+                    Opera is not currently supported.
+                    Consider using an alternative browser, such as Chrome, Edge, Firefox, or Safari.
+                    """
+            );
         }
 
         @Override
         public WebDriver createRemoteDriver() {
-            throw new BrowserNotSupportedException("Opera is not supported for execution on the current Selenium grid setup. " +
-                    "Ensure the grid supports Opera or consider using an alternative browser, such as Chrome or Firefox, for compatibility.");
+            throw new BrowserNotSupportedException(
+                    """
+                    Opera is not supported for execution on the current Selenium grid setup.
+                    Ensure the grid supports Opera or consider using an alternative browser, such as Chrome or Firefox, for compatibility.
+                    """
+            );
+        }
+
+        @Override
+        public WebDriver createTestcontainersDriver() {
+            throw new BrowserNotSupportedException(
+                    """
+                    Opera is not supported for execution on the current Testcontainers setup.
+                    Consider using an alternative browser, such as Chrome, Edge, or Firefox.
+                    """
+            );
         }
     },
 
@@ -161,17 +204,32 @@ public enum DriverFactory {
 
         @Override
         public WebDriver createRemoteDriver() {
-            throw new BrowserNotSupportedException("Safari is not supported for execution on the current Selenium grid setup. " +
-                    "Ensure the grid supports Safari or consider alternative solutions such as a macOS environment with safaridriver.");
+            throw new BrowserNotSupportedException(
+                    """
+                    Safari is not supported for execution on the current Selenium grid setup.
+                    Ensure the grid supports Safari or consider alternative solutions such as a macOS environment with safaridriver.
+                    """
+            );
+        }
+
+        @Override
+        public WebDriver createTestcontainersDriver() {
+            throw new BrowserNotSupportedException(
+                    """
+                    Safari is not supported for execution on the current Testcontainers setup.
+                    Consider using an alternative browser, such as Chrome, Edge, or Firefox.
+                    """
+            );
         }
     };
 
     public abstract AbstractDriverOptions<?> getOptions();
     public abstract WebDriver createLocalDriver();
     public abstract WebDriver createRemoteDriver();
+    public abstract WebDriver createTestcontainersDriver();
 
     @SneakyThrows
     private static URL getRemoteUrl() {
-        return URI.create(cfg().gridUrl()).toURL();
+        return URI.create(cfg().remoteUrl()).toURL();
     }
 }

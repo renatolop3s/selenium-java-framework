@@ -2,6 +2,7 @@ package tests;
 
 import br.com.renatolop3s.sjf.core.BaseTest;
 import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.inventory.InventoryPage;
@@ -10,6 +11,7 @@ import pages.login.LoginPage;
 import static br.com.renatolop3s.sjf.config.Configuration.cfg;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Feature("Shopping Cart")
 public class ShoppingCartTest extends BaseTest {
 
     private InventoryPage inventoryPage;
@@ -19,7 +21,7 @@ public class ShoppingCartTest extends BaseTest {
         String username = cfg().getProperty("username");
         String password = cfg().getProperty("password");
         inventoryPage = new LoginPage()
-                .open(cfg().url())
+                .open(cfg().baseUrl())
                 .loginAs(username, password);
     }
 

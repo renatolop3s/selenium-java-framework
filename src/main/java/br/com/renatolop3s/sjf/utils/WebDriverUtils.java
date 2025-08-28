@@ -1,4 +1,4 @@
-package br.com.renatolop3s.sjf.util;
+package br.com.renatolop3s.sjf.utils;
 
 import br.com.renatolop3s.sjf.driver.DriverManager;
 import lombok.extern.slf4j.Slf4j;

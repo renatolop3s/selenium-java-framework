@@ -4,10 +4,7 @@ import br.com.renatolop3s.sjf.core.BaseTest;
 import data.factory.CustomerFactory;
 import data.model.Customer;
 import io.qameta.allure.Description;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import io.qameta.allure.Feature;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.checkout.CheckoutCompletePage;
@@ -16,9 +13,10 @@ import pages.inventory.InventoryPage;
 import pages.login.LoginPage;
 
 import static br.com.renatolop3s.sjf.config.Configuration.cfg;
-import static br.com.renatolop3s.sjf.util.MessageReader.getMessage;
+import static br.com.renatolop3s.sjf.utils.MessageReader.getMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Feature("Checkout")
 public class CheckoutTest extends BaseTest {
 
     private Customer customer;
@@ -28,7 +26,7 @@ public class CheckoutTest extends BaseTest {
     public void login() {
         customer = CustomerFactory.create();
         inventoryPage = new LoginPage()
-                .open(cfg().url())
+                .open(cfg().baseUrl())
                 .loginAs(customer.getUsername(), customer.getPassword());
     }
 

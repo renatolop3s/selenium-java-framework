@@ -1,5 +1,6 @@
 package pages.checkout;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import pages.components.SharedComponentsPage;
@@ -16,6 +17,7 @@ public class CheckoutCompletePage extends SharedComponentsPage<CheckoutCompleteP
     @FindBy(className = "complete-text")
     private WebElement completeMessageText;
 
+    @Step("Click on back to home button")
     public InventoryPage clickOnBackHomeButton() {
         backHomeButton.click();
         return new InventoryPage();

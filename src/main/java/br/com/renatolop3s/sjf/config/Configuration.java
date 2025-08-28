@@ -1,64 +1,74 @@
 package br.com.renatolop3s.sjf.config;
 
+import br.com.renatolop3s.sjf.enums.Target;
 import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.ConfigCache;
+import org.aeonbits.owner.Converter;
 import org.aeonbits.owner.Mutable;
+
+import java.lang.reflect.Method;
 
 import static org.aeonbits.owner.Config.LoadType.MERGE;
 
 @LoadPolicy(MERGE)
 @Sources({
         "system:properties",
-        "file:src/test/resources/config.properties",
-        "file:src/test/resources/env/dev.properties",
-        "file:src/test/resources/env/qa.properties",
-        "file:src/test/resources/env/stage.properties",
-        "file:src/test/resources/env/prod.properties",
+        "file:src/test/resources/local.properties",
+        "file:src/test/resources/env.properties",
         "file:src/main/resources/reportportal.properties",
         "system:env"
 })
 public interface Configuration extends Mutable, Accessible {
 
-    @DefaultValue("local")
     @Key("target")
-    String target();
+    @DefaultValue("local")
+    @ConverterClass(TargetToUpperCase.class)
+    Target target();
 
-    @DefaultValue("qa")
     @Key("env")
+    @DefaultValue("qa")
     String env();
 
-    @DefaultValue("chrome")
     @Key("browser")
+    @DefaultValue("chrome")
     String browser();
 
-    @DefaultValue("false")
+    @Key("browser.size")
+    @DefaultValue("1280x720")
+    String browserSize();
+
     @Key("headless")
+    @DefaultValue("false")
     boolean headless();
 
+    @Key("timeout")
+    @DefaultValue("4")
+    int timeout();
+
+    @Key("remote.host")
     @DefaultValue("localhost")
-    @Key("grid.host")
-    String gridHost();
+    String remoteHost();
 
+    @Key("remote.port")
     @DefaultValue("4444")
-    @Key("grid.port")
-    String gridPort();
+    String remotePort();
 
-    @DefaultValue("http://${grid.host}:${grid.port}/wd/hub")
-    String gridUrl();
+    @DefaultValue("http://${remote.host}:${remote.port}/wd/hub")
+    String remoteUrl();
 
+    @Key("remote.session.timeout")
     @DefaultValue("1m")
-    @Key("grid.session.timeout")
-    String gridSessionTimeout();
+    String remoteSessionTimeout();
 
+    @Key("remote.enable.vnc")
     @DefaultValue("true")
-    @Key("grid.enable.vnc")
-    boolean gridEnableVnc();
+    boolean remoteEnableVnc();
 
+    @Key("remote.enable.video")
     @DefaultValue("false")
-    @Key("grid.enable.video")
-    boolean gridEnableVideo();
+    boolean remoteEnableVideo();
 
     @Key("rp.endpoint")
     String rpEndpoint();
@@ -73,10 +83,15 @@ public interface Configuration extends Mutable, Accessible {
     String rpLaunch();
 
     @Key("rp.enable")
+    @DefaultValue("false")
     boolean rpEnable();
 
-    @Key("${env}.url")
-    String url();
+    @Key("${env}.base.url")
+    String baseUrl();
+
+    class TargetToUpperCase implements Converter<Target> {
+        @Override public Target convert(Method method, String s) { return Target.valueOf(s.toUpperCase()); }
+    }
 
     static Configuration cfg() {
         return ConfigCache.getOrCreate(Configuration.class);

@@ -1,5 +1,6 @@
 package pages.inventory;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,12 +20,14 @@ public class InventoryPage extends SharedComponentsPage<InventoryPage> {
         return title.isDisplayed();
     }
 
+    @Step("Add item #{index} to cart")
     public InventoryPage addNthItemToCart(int index) {
         String addToCartButtonLocator = "[id^=add-to-cart]";
         items.get(index).findElement(By.cssSelector(addToCartButtonLocator)).click();
         return this;
     }
 
+    @Step("Add {count} items to cart")
     public InventoryPage addMultipleItemsToCart(int count) {
         for (int i = 1; i <= count; i++) {
             addNthItemToCart(i);
@@ -32,6 +35,7 @@ public class InventoryPage extends SharedComponentsPage<InventoryPage> {
         return this;
     }
 
+    @Step("Remove item #{index} from cart")
     public InventoryPage removeNthItemToCart(int index) {
         String removeButtonLocator = "[id^=remove]";
         items.get(index).findElement(By.cssSelector(removeButtonLocator)).click();

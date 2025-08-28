@@ -1,6 +1,5 @@
-package br.com.renatolop3s.sjf.util;
+package br.com.renatolop3s.sjf.utils;
 
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -28,7 +27,7 @@ public abstract class PropertiesReader {
         return file.exists();
     }
 
-    public synchronized static Properties getProperties() {
+    public static synchronized Properties getProperties() {
         return propertiesMap.computeIfAbsent(filePath, f -> {
             log.info("Loading properties file: {}", filePath);
             try (FileInputStream fileInputStream = new FileInputStream(f)) {

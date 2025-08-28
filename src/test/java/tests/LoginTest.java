@@ -2,14 +2,15 @@ package tests;
 
 import br.com.renatolop3s.sjf.core.BaseTest;
 import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
 import org.testng.annotations.Test;
 import pages.inventory.InventoryPage;
 import pages.login.LoginPage;
 
-import static br.com.renatolop3s.sjf.config.Configuration.cfg;
-import static br.com.renatolop3s.sjf.util.MessageReader.getMessage;
+import static br.com.renatolop3s.sjf.utils.MessageReader.getMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Feature("Login")
 public class LoginTest extends BaseTest {
 
     @Test

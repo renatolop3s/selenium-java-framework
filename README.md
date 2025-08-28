@@ -15,7 +15,7 @@ The framework offers a set of dependencies and plugins that simplify the creatio
 - **Owner**: for configuration management
 - **Log4j**: for logging
 - **Java Faker**: for generating test data
-- **Allure** and **ExtentReports**: for generating test reports
+- **Allure**: for generating test reports
 
 ## Prerequisites
 

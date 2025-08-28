@@ -1,7 +1,7 @@
-package br.com.renatolop3s.sjf.listener;
+package br.com.renatolop3s.sjf.listeners;
 
+import br.com.renatolop3s.sjf.utils.WebDriverUtils;
 import com.epam.reportportal.service.ReportPortal;
-import br.com.renatolop3s.sjf.util.WebDriverUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
