@@ -1,0 +1,61 @@
+name: Selenium Java Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+          - dev
+          - qa
+          - uat
+          - prod
+      suite:
+        description: 'Test Suite'
+        required: true
+        default: 'regression'
+        type: choice
+        options:
+          - smoke
+          - regression
+          - example
+      browser:
+        description: 'Browser'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+
+env:
+  SUITE: ${{ github.event.inputs.suite || 'regression' }}
+  ENV: ${{ github.event.inputs.environment || 'qa' }}
+  BROWSER: ${{ github.event.inputs.browser || 'chrome' }}
+
+jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: mvn clean install -D skipTests
+
+      - name: Run Test Suite
+        timeout-minutes: 10
+        run: |
+          mvn test \
+            -D target=remote \
+            -D remote.url=192.168.1.100 \
+            -D suite=${{ env.SUITE }} \
+            -D browser=${{ env.BROWSER }} \
+            -D headless \
+            -D timeout=8 \
+            -D env=${{ env.ENV }}
